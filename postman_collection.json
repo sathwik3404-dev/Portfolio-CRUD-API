@@ -1,0 +1,370 @@
+{
+  "info": {
+    "_postman_id": "portfolio-rest-api-assignment-2",
+    "name": "Sathwik Ananthula - Portfolio REST API (Assignment 2)",
+    "description": "Comprehensive Postman test collection for Assignment 2: Portfolio REST API with DRF TokenAuthentication and complete CRUD operations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "ff46e1a8288d06450b2b687d0f859dc8c193de5a",
+      "type": "string"
+    },
+    {
+      "key": "project_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_student_2\",\n  \"email\": \"student2@example.com\",\n  \"password\": \"SecurePass2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register", ""]
+            },
+            "description": "Registers a new user account with hashed password and generates a token."
+          }
+        },
+        {
+          "name": "Login (Get Auth Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "        console.log('Saved auth_token:', jsonData.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo_user\",\n  \"password\": \"StrongPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login", ""]
+            },
+            "description": "Authenticates user credentials and returns a Token."
+          }
+        },
+        {
+          "name": "Login - Invalid Password (Expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo_user\",\n  \"password\": \"WrongPassword999\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login", ""]
+            },
+            "description": "Negative test: rejects invalid credentials with HTTP 400."
+          }
+        },
+        {
+          "name": "Get Current User Profile (/api/auth/me/)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", ""]
+            },
+            "description": "Retrieves the currently authenticated user's profile."
+          }
+        },
+        {
+          "name": "Get Current User Profile - No Token (Expect 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me", ""]
+            },
+            "description": "Negative test: returns HTTP 401 Unauthorized when token header is omitted."
+          }
+        },
+        {
+          "name": "Logout (Revoke Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout", ""]
+            },
+            "description": "Revokes the active authentication token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Portfolio Projects CRUD",
+      "item": [
+        {
+          "name": "List User's Projects (GET /api/projects/)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/projects/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", ""]
+            },
+            "description": "Retrieves all projects belonging exclusively to the authenticated user."
+          }
+        },
+        {
+          "name": "List Projects - Unauthenticated (Expect 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/projects/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", ""]
+            },
+            "description": "Negative test: accessing CRUD list endpoint without token returns HTTP 401."
+          }
+        },
+        {
+          "name": "Create Project (POST /api/projects/)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var data = pm.response.json();",
+                  "    if (data.id) {",
+                  "        pm.collectionVariables.set('project_id', String(data.id));",
+                  "        console.log('Created project id:', data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Smart Agriculture Sensor Node\",\n  \"description\": \"Soil nitrogen, phosphorus, and moisture monitoring system with solar harvesting.\",\n  \"technologies\": \"ESP32, LoRaWAN, C++, MQTT\",\n  \"github_url\": \"https://github.com/sathwik3404-dev/smart-agri-lora\",\n  \"live_demo_url\": \"https://agri-demo.example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/projects/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", ""]
+            },
+            "description": "Creates a new project owned by the authenticated user. Returns HTTP 201."
+          }
+        },
+        {
+          "name": "Create Project - Empty Title (Expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\",\n  \"description\": \"Missing title validation test\",\n  \"technologies\": \"Python\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/projects/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", ""]
+            },
+            "description": "Validation test: rejects empty title with HTTP 400 Bad Request."
+          }
+        },
+        {
+          "name": "Get Specific Project (GET /api/projects/<id>/)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/projects/{{project_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", "{{project_id}}", ""]
+            },
+            "description": "Retrieves an individual project by ID owned by the user. Returns HTTP 200."
+          }
+        },
+        {
+          "name": "Update Project Full (PUT /api/projects/<id>/)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Smart Agriculture Node (Enhanced)\",\n  \"description\": \"Fully upgraded with LoRa mesh network and solar battery diagnostics.\",\n  \"technologies\": \"ESP32, LoRaWAN, C++, MQTT, React\",\n  \"github_url\": \"https://github.com/sathwik3404-dev/smart-agri-lora-v2\",\n  \"live_demo_url\": \"https://agri-demo-v2.example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/projects/{{project_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", "{{project_id}}", ""]
+            },
+            "description": "Fully updates all fields of a project record. Returns HTTP 200."
+          }
+        },
+        {
+          "name": "Update Project Partial (PATCH /api/projects/<id>/)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Smart Agriculture Node (Final Patch)\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/projects/{{project_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", "{{project_id}}", ""]
+            },
+            "description": "Partially updates specific fields of a project. Returns HTTP 200."
+          }
+        },
+        {
+          "name": "Delete Project (DELETE /api/projects/<id>/)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Token {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/projects/{{project_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", "{{project_id}}", ""]
+            },
+            "description": "Deletes the project owned by the user. Returns HTTP 204 No Content."
+          }
+        },
+        {
+          "name": "Public Projects Listing (GET /api/projects/public/)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/projects/public/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "projects", "public", ""]
+            },
+            "description": "Public unauthenticated endpoint to display portfolio projects on the public site."
+          }
+        }
+      ]
+    }
+  ]
+}

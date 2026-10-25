@@ -26,6 +26,7 @@
         <li><a href="#education">Education</a></li>
         <li><a href="#achievements">Achievements</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li><a href="admin.html" class="nav-admin">Admin Portal</a></li>
       </ul>
     </nav>
   </header>
@@ -55,13 +56,19 @@
     </section>
 
         <section class="block" id="projects">
-      <h2>Projects</h2>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <h2 style="margin-bottom: 0;">Projects</h2>
+        <a href="admin.html" class="chip chip-admin" title="Manage portfolio projects with REST API">
+          <svg style="width: 14px; height: 14px; fill: currentColor; vertical-align: middle; margin-right: 4px;" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg>
+          Admin Login / CRUD API
+        </a>
+      </div>
       <div class="filters" role="group" aria-label="Filter projects">
         <button class="chip is-active" data-filter="all" aria-pressed="true">All</button>
         <button class="chip" data-filter="web" aria-pressed="false">Web</button>
         <button class="chip" data-filter="iot" aria-pressed="false">IoT</button>
       </div>
-      <div class="projects">
+      <div class="projects" id="projectsContainer">
         <article class="project" data-type="web">
           <h3>Fuelup: on-demand fuel delivery</h3>
           <p>A full-stack app that lets someone order petrol or diesel to their live location during an emergency or a trip. In progress: location-based service, online payment flow and a certified delivery workflow.</p>

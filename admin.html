@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Portal & Project Management | Sathwik Ananthula</title>
+  <meta name="description" content="Manage portfolio projects with REST API and Token Authentication">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;800&family=Saira+Extra+Condensed:wght@500;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assign-1.css">
+  <style>
+    /* Admin portal specific tweaks */
+    body { background-color: #f8fafc; }
+    .admin-wrapper { max-width: 58rem; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+    .api-badge { background: #0077cc; color: #fff; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <div>
+        <a class="brand" href="index.html" style="display:inline-block; font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; color: var(--blue); text-decoration: none; text-transform: uppercase; margin-bottom: 0.25rem;">
+          Sathwik <span>Ananthula</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <h1 style="font-size: 1.8rem; margin: 0;">Project Management Portal</h1>
+          <span class="api-badge">REST API</span>
+        </div>
+      </div>
+      <div>
+        <a href="index.html" class="back-link">← Back to Portfolio</a>
+      </div>
+    </header>
+
+    <!-- ==============================================
+         AUTHENTICATION SECTION (Login & Registration)
+         ============================================== -->
+    <section id="authSection">
+      <div id="authAlert" class="alert" hidden></div>
+
+      <div class="card" style="max-width: 32rem; margin: 0 auto;">
+        <div class="auth-tabs">
+          <button id="tabLogin" class="auth-tab-btn is-active" type="button">Sign In</button>
+          <button id="tabRegister" class="auth-tab-btn" type="button">Create Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginFormWrap">
+          <form id="loginForm">
+            <div class="form-group">
+              <label class="form-label" for="loginUsername">Username <span class="req">*</span></label>
+              <input type="text" id="loginUsername" class="form-control" placeholder="e.g. sathwik_dev" required autocomplete="username">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPassword">Password <span class="req">*</span></label>
+              <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+          </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerFormWrap" hidden>
+          <form id="registerForm">
+            <div class="form-group">
+              <label class="form-label" for="regUsername">Username <span class="req">*</span></label>
+              <input type="text" id="regUsername" class="form-control" placeholder="e.g. demo_user" required autocomplete="username">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Email Address <span class="req">*</span></label>
+              <input type="email" id="regEmail" class="form-control" placeholder="demo@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Password <span class="req">*</span></label>
+              <input type="password" id="regPassword" class="form-control" placeholder="Minimum 8 characters with numbers" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Register Account</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Testing & Demo Helper Card -->
+      <div class="card" style="max-width: 32rem; margin: 1.5rem auto 0; background: #f0f7fc; border-color: #b9dcf7;">
+        <h3 style="font-size: 1.2rem; margin-top: 0; color: var(--blue);">💡 Quick Demo Information</h3>
+        <p style="font-size: 0.95rem; margin: 0.4rem 0;">
+          This portal uses <strong>Django REST Framework TokenAuthentication</strong>.
+          You can create a new user account right above or log in to manage your portfolio project records via CRUD REST endpoints.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         PROTECTED DASHBOARD SECTION (CRUD Projects)
+         ============================================== -->
+    <section id="dashboardSection" hidden>
+      <div class="dashboard-user-bar">
+        <span id="userInfoSpan" class="dashboard-user-info">Authenticated</span>
+        <button id="logoutBtn" class="btn btn-sm btn-outline" type="button">Sign Out</button>
+      </div>
+
+      <div id="dashboardAlert" class="alert" hidden></div>
+
+      <!-- Create Project Card -->
+      <div class="card">
+        <h2 class="card-title">Create New Portfolio Project</h2>
+        <form id="createProjectForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="projectTitle">Project Title <span class="req">*</span></label>
+              <input type="text" id="projectTitle" class="form-control" placeholder="e.g. AI Threat Detection" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="projectTechnologies">Technologies Used <span class="req">*</span></label>
+              <input type="text" id="projectTechnologies" class="form-control" placeholder="e.g. Python, Django, TensorFlow" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="projectDescription">Project Description <span class="req">*</span></label>
+            <textarea id="projectDescription" class="form-control" rows="3" placeholder="Provide a concise summary of what this project does and key features..." required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="projectGithub">GitHub Repository URL (Optional)</label>
+              <input type="url" id="projectGithub" class="form-control" placeholder="https://github.com/sathwik3404-dev/...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="projectDemo">Live Demo URL (Optional)</label>
+              <input type="url" id="projectDemo" class="form-control" placeholder="https://...">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Publish Project</button>
+        </form>
+      </div>
+
+      <!-- Manage Projects List -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2 class="card-title" style="margin: 0;">Your Managed Projects</h2>
+          <span style="font-size: 0.9rem; color: var(--muted);">Synced with Django REST API</span>
+        </div>
+        <div id="projectsList">
+          <div class="empty-state">
+            <span class="spinner spinner-dark"></span>
+            <p>Loading projects...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==============================================
+       EDIT PROJECT MODAL
+       ============================================== -->
+  <div id="editModal" class="modal-overlay" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-size: 1.6rem; margin: 0; color: var(--ink);">Edit Portfolio Project</h2>
+        <button id="closeEditModal" class="modal-close" type="button" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="editProjectForm">
+        <input type="hidden" id="editProjectId">
+        <div class="form-group">
+          <label class="form-label" for="editProjectTitle">Project Title <span class="req">*</span></label>
+          <input type="text" id="editProjectTitle" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editProjectTechnologies">Technologies Used <span class="req">*</span></label>
+          <input type="text" id="editProjectTechnologies" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editProjectDescription">Project Description <span class="req">*</span></label>
+          <textarea id="editProjectDescription" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editProjectGithub">GitHub Repository URL</label>
+          <input type="url" id="editProjectGithub" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editProjectDemo">Live Demo URL</label>
+          <input type="url" id="editProjectDemo" class="form-control">
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button id="cancelEditBtn" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
